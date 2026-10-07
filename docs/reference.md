@@ -207,6 +207,7 @@ Checked when the setup was built:
 - Frontmatter of all agents, commands and rules parses; agent models are valid aliases; every referenced script and agent exists.
 - 36 dry-run cases of the hook scripts in a throwaway repository, including empty and malformed stdin (all pass), plus the real command string from `settings.json` under Git Bash.
 - Secrets, history and logs are confirmed ignored by `git check-ignore`.
+- Tested on both machines, the Windows desktop and the MacBook: the hooks, the sync between them and the `notify.js` sound all work on macOS as well.
 
 ## ⚠️ Known limits and unverified assumptions
 
@@ -215,7 +216,6 @@ Checked when the setup was built:
 - The Phase CLI syntax in the `ask` rules and the Phase token format in the secret scan are best guesses.
 - `ktlint` on Windows is often a `.bat` file; `format-on-edit.js` calls executables without a shell and will skip it silently in that case.
 - The skill description budget and the full `statusLine` schema were not verified against the docs.
-- macOS behavior (sound, hooks, sync) was not tested yet; see the new-machine checklist.
 
 ## ⏪ Rollback
 

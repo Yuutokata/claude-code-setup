@@ -43,7 +43,7 @@ flowchart LR
 
 Two things followed from that:
 
-- **One setup, two operating systems.** The hooks are plain Node scripts that never go through a shell, and the permission rules exist for both the Bash and the PowerShell tool, so nothing depends on which machine I'm sitting at.
+- **One setup, two operating systems.** The hooks are plain Node scripts that never go through a shell, and the permission rules exist for both the Bash and the PowerShell tool, so nothing depends on which machine I'm sitting at. I run it on both, and the hooks, the sync and the notification sound all work on each.
 - **An unattended push has to be safe.** A hook that publishes on its own is only as safe as what it is allowed to publish. The `.gitignore` is a whitelist (everything is ignored unless I list it), and every auto-sync commit goes through a secret scan first.
 
 This repository is a cleaned copy of that private one, without my skills and without anything personal.
