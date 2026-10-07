@@ -20,17 +20,60 @@ I'm publishing it to be read and borrowed from, not installed as it is. The perm
 | `scripts/` | Node hooks that guard commands, scan for secrets, format edited files and keep the config synced. |
 | `settings.json` | Permissions (deny, ask, allow), hook wiring, plugins and model settings. |
 
+## How the hooks fit together
+
+```mermaid
+flowchart LR
+    S([Session starts]) -->|sync.sh| P[Pull the config repo]
+    P --> W[Working session]
+    W -->|Bash or PowerShell command| G[bash-guard.js]
+    W -->|Edit or Write| F[format-on-edit.js]
+    W -->|Prompt or idle| N[notify.js]
+    W --> E([Session ends])
+    E -->|push.sh| SG[secret-gate.js]
+    SG -->|clean| C[Commit and push]
+    SG -->|secret found| K[Skip the sync]
+```
+
 ## Ideas worth borrowing
 
 **Keep the always-loaded part small.** `CLAUDE.md` and the four general rules come to about 2k tokens. Anything stack-specific lives in a rule with a `paths:` list in its frontmatter, so the Python rules cost nothing while I'm working on a Kotlin service.
 
-**Write hooks in Node, without a shell.** The same scripts run on Windows and macOS. `bash-guard.js` blocks the usual disasters (force pushes, recursive deletes of root-like paths, `curl | sh`, dropping a database) and scans the staged changes for secrets before every `git commit`. It reports file, line and pattern, never the value.
+**Write hooks in Node, without a shell.** The same scripts run on Windows and macOS. `bash-guard.js` blocks the usual disasters (force pushes, recursive deletes of root-like paths, `curl | sh`, dropping a database) and scans the staged changes for secrets before every `git commit`. It reports file, line and pattern, never the value. [How it works](docs/bash-guard.md).
 
 **Make auto-sync fail closed.** A session-end hook commits and pushes the config repo. Because that commit would bypass the guard above, `secret-gate.js` runs the same scanner first. If it finds something, or breaks, the sync is skipped and nothing leaves the machine.
 
 **Order permissions as deny, ask, allow.** Destructive and outward-facing commands ask first, routine safe ones run without a prompt, and secrets are off limits. Rules exist for both the Bash and PowerShell tools. Pattern matching on command text is not a security boundary, which is why the hook above exists as a second layer.
 
 **Pick the model per job.** Opus for planning and architecture, Haiku for documentation, Sonnet for everything else, using aliases instead of pinned model IDs so the setup does not go stale.
+
+## See it work
+
+This is the real output of `bash-guard.js`, not a mock-up. Each command is sent to the hook as Claude Code would send it, and the last case commits a file that contains a fake token:
+
+```
+$ git push --force origin main
+Blocked by bash-guard: force push.
+Force pushes rewrite shared history. Ask the user to run it themselves.
+[exit 2]
+
+$ rm -rf ~
+Blocked by bash-guard: recursive delete of a root-like path.
+Delete a specific subdirectory instead.
+[exit 2]
+
+$ git commit -m "add config"
+Blocked by bash-guard: possible secrets in the changes to be committed (values are not shown):
+  - config.py:1  GitHub token
+Remove them, load them from environment variables (Phase/.env), and rotate any secret that was ever pushed.
+For an intentional test fixture, add the comment "secret-scan:allow" on that line.
+[exit 2]
+
+$ git status
+[exit 0]
+```
+
+The message goes back to Claude, so it usually reacts by choosing a safer command or asking me, instead of retrying the same one.
 
 ## Layout
 
@@ -44,7 +87,9 @@ I'm publishing it to be read and borrowed from, not installed as it is. The perm
 ├── scripts/
 │   ├── hooks/         bash-guard, secret-gate, format-on-edit, notify, sync, push
 │   └── lib/           shared helpers and the secret scanner
-├── docs/reference.md  every rule, agent, command and hook in detail
+├── docs/
+│   ├── bash-guard.md  how the command guard and secret scan work
+│   └── reference.md   every rule, agent, command and hook in detail
 └── skills/            list of the skills I use (not included)
 ```
 
@@ -52,10 +97,14 @@ I'm publishing it to be read and borrowed from, not installed as it is. The perm
 
 Read before you copy. The rules and agents are the easiest parts to reuse; start there and cut whatever does not match your stack.
 
-Try the guard before you register it. This should print `2`, which means the command was blocked:
+Try the guard before you register it. Run this in a normal terminal, not through Claude with the hook enabled, because the guard would block the command that contains the test string. It should print `2`:
 
 ```sh
-echo '{"tool_input":{"command":"git push --force"}}' | node scripts/hooks/bash-guard.js; echo $?
+node -e "
+const { spawnSync } = require('child_process');
+const command = 'git push --' + 'force';
+const r = spawnSync('node', ['scripts/hooks/bash-guard.js'], { input: JSON.stringify({ tool_input: { command } }), encoding: 'utf8' });
+console.log(r.status);"
 ```
 
 `sync.sh` and `push.sh` are written for my own setup and will not work for you as they are. They hardcode my private config repository, the branch `master` and the directory `$HOME/.claude`. Change those variables or leave the two hooks out of `settings.json`. `push.sh` commits and pushes everything your `.gitignore` allows, so keep the whitelist and the secret gate in place if you use it.
