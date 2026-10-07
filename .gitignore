@@ -18,6 +18,8 @@
 !agents/**
 !commands/
 !commands/**
+!docs/
+!docs/**
 !skills/
 !skills/**
 skills/synced/
