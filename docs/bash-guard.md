@@ -1,14 +1,17 @@
-# bash-guard.js
+# 🛡️ bash-guard.js
+
+> [!NOTE]
+> Part of [claude-code-setup](../README.md). The script is [`scripts/hooks/bash-guard.js`](../scripts/hooks/bash-guard.js), and the rest of the setup is described in the [reference](reference.md).
 
 `bash-guard.js` is a `PreToolUse` hook. Claude Code runs it before every Bash or PowerShell command, and passes the command to it as JSON on stdin. If the script exits with `0`, the command goes ahead. If it exits with `2`, the command is blocked and whatever the script wrote to stderr is sent back to Claude, so it can change course instead of just failing.
 
 It does two jobs: it refuses a short list of commands that are hard to undo, and it scans for secrets before a `git commit`.
 
-## Why it exists
+## 🎯 Why it exists
 
 My permission rules already deny and ask about a lot. The trouble is that those rules match the command text in its usual spelling. `git push --force` is covered, but `git push -f`, `git push origin +main` and the same thing buried in a longer one-liner are different strings. The guard looks at the whole command with patterns that cover those variants, so it works as a second layer behind the rules, not a replacement for them.
 
-## How it decides
+## 🧭 How it decides
 
 ```mermaid
 flowchart TD
@@ -24,7 +27,7 @@ flowchart TD
 
 Any internal error also ends in exit `0`. A bug in the guard should never be able to lock a session.
 
-## Job 1: dangerous commands
+## 🚫 Job 1: dangerous commands
 
 The rules live in [`scripts/lib/danger-patterns.js`](../scripts/lib/danger-patterns.js).
 
@@ -39,7 +42,7 @@ The rules live in [`scripts/lib/danger-patterns.js`](../scripts/lib/danger-patte
 
 The hint matters as much as the block. Claude reads it and usually picks a safer command or asks me, instead of retrying the same thing in a different spelling.
 
-## Job 2: secrets before a commit
+## 🔑 Job 2: secrets before a commit
 
 When the command contains `git ... commit`, the guard works out what is about to be committed:
 
@@ -56,7 +59,13 @@ Only added lines are scanned, so old content and deleted lines are ignored. The 
 
 A finding shows the file, the line and the pattern name. It never shows the value, so the report cannot leak the secret it found. For a deliberate test fixture, put the comment `secret-scan:allow` on that line.
 
-## What it looks like
+## 👀 What it looks like
+
+<p align="center">
+  <img src="assets/guard-demo.svg" alt="Terminal output of bash-guard.js blocking a force push, a recursive delete and a commit that contains a token" width="760">
+</p>
+
+The image is rendered from a real run. This is the full text of the commit case, including the two hint lines the image leaves out:
 
 ```
 $ git commit -m "add config"
@@ -67,20 +76,20 @@ For an intentional test fixture, add the comment "secret-scan:allow" on that lin
 [exit 2]
 ```
 
-## Fail open here, fail closed there
+## ⚖️ Fail open here, fail closed there
 
 The guard fails open: if it breaks, the command runs. That is the right trade for an interactive session, where the permission rules are still in front of it and I am watching.
 
 [`secret-gate.js`](../scripts/hooks/secret-gate.js) uses the same scanner for the unattended auto-sync at session end and does the opposite: if it finds something or breaks, nothing is committed. Nobody is watching that commit, so the safe default is to do nothing.
 
-## Limits
+## ⚠️ Limits
 
 - **It matches text, not intent.** If a blocked pattern merely appears in a command, even inside an `echo` or a commit message, the guard blocks it. I hit this while writing the tests for this very repo.
 - **It is not a sandbox.** Indirection such as variables, `sh -c "..."`, base64 or a script that runs the command for you gets past text matching. For real isolation use the operating system's sandbox.
 - **The secret scan is best effort.** It matches known token shapes and obvious assignments. It does not measure entropy, so an unusual secret format can slip through, and it only sees the lines being added. A secret that is already in your history needs rotating, not scanning.
 - **It only covers Bash and PowerShell calls.** That is where `git commit` happens, which is the case it was built for.
 
-## Changing it
+## 🔧 Changing it
 
 To add a rule, append an object to `RULES` in `danger-patterns.js` with a `name`, a `test` function and a `hint`. Then check it with a sample payload before you rely on it. Build the dangerous string at runtime in the test, otherwise your own guard will block the command that contains it:
 

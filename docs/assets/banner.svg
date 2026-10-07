@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="300" viewBox="0 0 1200 300" role="img" aria-label="claude-code-setup: one Claude Code setup, synced between my desktop and my MacBook">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0d1117"/>
+      <stop offset="1" stop-color="#161b22"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#d97757"/>
+      <stop offset="1" stop-color="#e3b341"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="300" rx="14" fill="url(#bg)" stroke="#30363d"/>
+  <rect x="64" y="52" width="64" height="64" rx="14" fill="#21262d" stroke="#30363d"/>
+  <path d="M82 72l16 12-16 12" fill="none" stroke="url(#accent)" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+  <line x1="104" y1="100" x2="116" y2="100" stroke="url(#accent)" stroke-width="5" stroke-linecap="round"/>
+  <path d="M820 56l190 94-190 94" fill="none" stroke="url(#accent)" stroke-width="36" stroke-linecap="round" stroke-linejoin="round" opacity="0.10"/>
+  <line x1="1040" y1="244" x2="1120" y2="244" stroke="url(#accent)" stroke-width="36" stroke-linecap="round" opacity="0.10"/>
+  <text x="64" y="166" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace" font-size="46" font-weight="700" fill="#f0f6fc">claude-code-setup</text>
+  <text x="64" y="206" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="20" fill="#8b949e">One Claude Code setup, synced between my desktop and my MacBook.</text>
+  <rect x="64" y="226" width="76" height="32" rx="16" fill="#21262d" stroke="#30363d"/><text x="102" y="247" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="15" fill="#c9d1d9">rules</text>
+  <rect x="152" y="226" width="112.8" height="32" rx="16" fill="#21262d" stroke="#30363d"/><text x="208.4" y="247" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="15" fill="#c9d1d9">subagents</text>
+  <rect x="276.8" y="226" width="103.6" height="32" rx="16" fill="#21262d" stroke="#30363d"/><text x="328.6" y="247" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="15" fill="#c9d1d9">commands</text>
+  <rect x="392.4" y="226" width="76" height="32" rx="16" fill="#21262d" stroke="#30363d"/><text x="430.4" y="247" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="15" fill="#c9d1d9">hooks</text>
+  <rect x="480.4" y="226" width="131.2" height="32" rx="16" fill="#21262d" stroke="#30363d"/><text x="546" y="247" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="15" fill="#c9d1d9">permissions</text>
+  <rect x="64" y="278" width="150" height="4" rx="2" fill="url(#accent)"/>
+</svg>

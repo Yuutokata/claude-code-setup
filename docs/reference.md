@@ -1,8 +1,9 @@
-# Reference
+# 📚 Reference
 
-Details behind the [README](../README.md): every rule, agent, command and hook, the permission lists and how the sync works.
+> [!NOTE]
+> Details behind the [README](../README.md): every rule, agent, command and hook, the permission lists and how the sync works. For the command guard on its own, see [bash-guard.md](bash-guard.md).
 
-## Rules
+## 📏 Rules
 
 | File | Loads | Content |
 |---|---|---|
@@ -18,7 +19,7 @@ Details behind the [README](../README.md): every rule, agent, command and hook, 
 
 Dokploy adds the basic Traefik labels itself when a domain is configured in its Domains tab, so the rules tell Claude **not** to add them to compose files.
 
-## Agents
+## 🤖 Agents
 
 | Agent | Model | Tools | Use for |
 |---|---|---|---|
@@ -36,7 +37,7 @@ Model strategy: Opus only where reasoning dominates (planning, architecture), Ha
 
 **Sonnet works, Opus judges:** for security-critical changes (auth, secrets, exposed infrastructure) spawn the reviewer with an override: `security-reviewer` with `model: opus`. For whole sessions, `/model opusplan` uses Opus in plan mode and Sonnet for execution.
 
-## Commands
+## ⌨️ Commands
 
 | Command | Model-invocable | Purpose |
 |---|---|---|
@@ -53,13 +54,13 @@ Model strategy: Opus only where reasoning dominates (planning, architecture), Ha
 | `/learn` | manual only | Save a reusable pattern as `~/.claude/skills/<name>/SKILL.md` after confirmation |
 
 Commands marked "manual only" use `disable-model-invocation: true`, so their descriptions cost no always-loaded tokens. Toolchain detection (`pyproject.toml`/`uv.lock`, `build.gradle.kts`, `package.json` + lockfile, compose files) replaces any hardcoded package manager.
-## Skills
+## 🧰 Skills
 
 This repository contains no skill files, because the skills I run are other people's work. [`skills/README.md`](../skills/README.md) lists them with their upstreams and licenses. On my own machines `skills/` is synced from a private copy.
 
 `skills/synced/` is a bucket that Claude Desktop manages itself (docx, pdf, pptx, xlsx and so on). It is git-ignored and should not be edited by hand.
 
-## Hooks
+## 🪝 Hooks
 
 All hooks are registered in `settings.json`. **`disableAllHooks` is the master switch**: while it is `true`, nothing below runs, including the sync hooks. Turn it to `false` when you want everything active.
 
@@ -107,7 +108,7 @@ Runs only when the project clearly uses the tool, never uses the network (no `np
 
 **Using these scripts yourself:** `sync.sh` and `push.sh` are written for my setup and will not work for you as they are. They hardcode my config repository (`SSH_URL` and `HTTPS_URL` in `sync.sh`, plus the repository named in the comments), the branch `master` (`BRANCH`), and the directory `$HOME/.claude` (`DIR`). Change those variables to your own repository, or do not register the two hooks in `settings.json`. Be careful with `push.sh`: it commits and pushes everything your `.gitignore` allows, so keep the whitelist and the secret gate in place. Do not modify or move these two scripts without checking both hook entries in `settings.json`.
 
-## Permissions
+## 🔐 Permissions
 
 Evaluation order is **deny, then ask, then allow**; an `allow` cannot override a `deny` or an `ask`. Rules exist in pairs for the `Bash` and `PowerShell` tools (same pattern shape). Counts: 142 allow, 103 deny, 118 ask.
 
@@ -134,7 +135,7 @@ Broad allows such as `python *`, `node *`, `npx *` and `gh:*` are deliberately a
 
 **Honest limit:** Bash/PowerShell deny rules match the command text. They are not a security boundary (a different spelling or `sh -c` can bypass them), which is why `bash-guard.js` exists as a second layer. A `Read` deny also blocks `Edit`/`Write` on the same path, but does not stop a subprocess from reading a file. For hard isolation use the OS sandbox.
 
-## Plugins and MCP
+## 🔌 Plugins and MCP
 
 Two plugins are enabled in `enabledPlugins`:
 
@@ -147,7 +148,7 @@ The rest are listed with `false` on purpose. Several duplicate the agents and co
 
 Budget goal: fewer than 10 active MCP servers and fewer than 80 tools. Other MCP sources: `scrapling` (user scope, hosted third-party endpoint; used only as a fallback for blocked pages) and the claude.ai connectors (Notion, Claude Docs). Tool search keeps MCP schemas deferred.
 
-## Models and settings
+## 🎛️ Models and settings
 
 | Setting | Value | Reason |
 |---|---|---|
@@ -160,7 +161,7 @@ Budget goal: fewer than 10 active MCP servers and fewer than 80 tools. Other MCP
 
 No model ID is pinned, so the `opus` alias always resolves to the current Opus.
 
-## Sync across machines
+## 🔄 Sync across machines
 
 On my machines the config directory is itself a git repo (a private one, branch `master`). This repository is a cleaned copy of it. `.gitignore` is a **whitelist**: everything is ignored (`*`), and only the following is re-included:
 
@@ -174,7 +175,7 @@ Line endings: `* text=auto`, `*.sh text eol=lf`. Keep `.sh` files on LF.
 
 Do not add keys with secrets to the `env` block of `settings.json`, because that file is synced.
 
-## Setting up a new machine
+## 💻 Setting up a new machine
 
 1. Install Git, Node.js and Claude Code. On Windows, install Git for Windows (Git Bash) so `bash` resolves to it and not the WSL stub.
 2. Set `git config --global user.name` and `user.email`, and make sure `git push` to the repo works (credential manager or SSH key).
@@ -188,7 +189,7 @@ Do not add keys with secrets to the `env` block of `settings.json`, because that
    ```
 7. Set `disableAllHooks` to `false`.
 
-## Maintaining the setup
+## 🛠️ Maintaining the setup
 
 - **New stack-specific rule:** create `rules/<name>.md` with a `paths:` list in the frontmatter. Always quote globs and use a YAML list. Without `paths:` a rule is always loaded; keep those few and short.
 - **New agent:** `agents/<name>.md` with `name` (equal to the filename), a one-sentence `description` (this is always loaded, keep it precise), `tools`, and `model` as an alias.
@@ -198,7 +199,7 @@ Do not add keys with secrets to the `env` block of `settings.json`, because that
 - **Check what the next sync would commit:** `git -C ~/.claude add -n -A`.
 - **Compare sizes** of the always-loaded part after changes; keep `CLAUDE.md` well below 200 lines.
 
-## Verification
+## ✅ Verification
 
 Checked when the setup was built:
 
@@ -207,16 +208,16 @@ Checked when the setup was built:
 - 36 dry-run cases of the hook scripts in a throwaway repository, including empty and malformed stdin (all pass), plus the real command string from `settings.json` under Git Bash.
 - Secrets, history and logs are confirmed ignored by `git check-ignore`.
 
-## Known limits and unverified assumptions
+## ⚠️ Known limits and unverified assumptions
 
 - **SessionEnd budget:** the docs reportedly give SessionEnd hooks only a short shared time budget (about 1.5 s). If pushes silently do not happen, `push.sh` may be cut off. Unconfirmed. `push.sh` also runs on every `/clear`.
-- Shell deny rules are best effort, see [Permissions](#permissions).
+- Shell deny rules are best effort, see the Permissions section above.
 - The Phase CLI syntax in the `ask` rules and the Phase token format in the secret scan are best guesses.
 - `ktlint` on Windows is often a `.bat` file; `format-on-edit.js` calls executables without a shell and will skip it silently in that case.
 - The skill description budget and the full `statusLine` schema were not verified against the docs.
 - macOS behavior (sound, hooks, sync) was not tested yet; see the new-machine checklist.
 
-## Rollback
+## ⏪ Rollback
 
 - A single file: `git -C ~/.claude checkout HEAD -- <path>` restores the last committed version (uncommitted changes to that file are lost).
 - Disable all automation immediately: set `"disableAllHooks": true` in `settings.json`.

@@ -1,26 +1,77 @@
-# claude-code-setup
+<p align="center">
+  <img src="docs/assets/banner.svg" alt="claude-code-setup: one Claude Code setup, synced between my desktop and my MacBook" width="100%">
+</p>
 
-My Claude Code configuration: rules, subagents, hooks and permissions for a Kotlin, Python and React stack.
+<p align="center">
+  <img alt="License: MIT" src="https://img.shields.io/badge/license-MIT-blue?style=flat-square">
+  <img alt="Platforms: Windows and macOS" src="https://img.shields.io/badge/platforms-Windows%20%7C%20macOS-lightgrey?style=flat-square">
+  <img alt="Hooks written in Node.js" src="https://img.shields.io/badge/hooks-Node.js-339933?style=flat-square&logo=nodedotjs&logoColor=white">
+  <img alt="Claude Code" src="https://img.shields.io/badge/Claude_Code-setup-D97757?style=flat-square&logo=anthropic&logoColor=white">
+</p>
 
-![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)
-![Platforms: Windows and macOS](https://img.shields.io/badge/platforms-Windows%20%7C%20macOS-lightgrey.svg)
+<p align="center">
+  <img alt="Kotlin" src="https://img.shields.io/badge/Kotlin-7F52FF?style=flat-square&logo=kotlin&logoColor=white">
+  <img alt="Python" src="https://img.shields.io/badge/Python-3776AB?style=flat-square&logo=python&logoColor=white">
+  <img alt="React" src="https://img.shields.io/badge/React-20232A?style=flat-square&logo=react&logoColor=61DAFB">
+  <img alt="MongoDB" src="https://img.shields.io/badge/MongoDB-47A248?style=flat-square&logo=mongodb&logoColor=white">
+  <img alt="Docker" src="https://img.shields.io/badge/Docker-2496ED?style=flat-square&logo=docker&logoColor=white">
+</p>
 
-This is the `~/.claude` directory I use every day on Windows and macOS, cleaned up so it can be shared. My work is mostly backend (Kotlin with Ktor, Python with FastAPI, MongoDB, Docker on a small VPS) with a React and Tailwind frontend on the side, and the setup is tuned for that.
+<p align="center">
+  <a href="docs/reference.md">Reference</a> ·
+  <a href="docs/bash-guard.md">Command guard</a> ·
+  <a href="skills/README.md">Skills</a> ·
+  <a href="LICENSE">License</a>
+</p>
 
-I'm publishing it to be read and borrowed from, not installed as it is. The permissions, plugin choices and some paths are mine, and you will want your own. It is not affiliated with or endorsed by Anthropic.
+My Claude Code configuration: rules, subagents, hooks and permissions for a backend-heavy stack (Kotlin with Ktor, Python with FastAPI, MongoDB, Docker on a small VPS) with a React and Tailwind frontend on the side. It is the `~/.claude` directory I use every day, cleaned up so it can be shared.
 
-## What's in it
+> [!NOTE]
+> I'm publishing this to be read and borrowed from, not installed as it is. The permissions, plugin choices and some paths are mine, and you will want your own. It is an independent personal project and is not affiliated with or endorsed by Anthropic.
+
+## 🎯 Why I built it
+
+I work on two machines: a Windows desktop at home and a MacBook when I'm on the go. I wanted Claude Code to behave exactly the same on both. Same rules, same subagents, same permissions, same hooks, without rebuilding anything by hand and without wondering why a command is allowed on one machine and blocked on the other.
+
+So the whole `~/.claude` directory is a git repository. A hook pulls it when a session starts, and another one commits and pushes it when the session ends. If I change a rule on the desktop, the MacBook has it the next time I open Claude Code.
+
+```mermaid
+flowchart LR
+    D["Desktop at home"] <-->|"session start: pull<br/>session end: push"| R[("Private config repo")]
+    R <-->|"session start: pull<br/>session end: push"| M["MacBook on the go"]
+```
+
+Two things followed from that:
+
+- **One setup, two operating systems.** The hooks are plain Node scripts that never go through a shell, and the permission rules exist for both the Bash and the PowerShell tool, so nothing depends on which machine I'm sitting at.
+- **An unattended push has to be safe.** A hook that publishes on its own is only as safe as what it is allowed to publish. The `.gitignore` is a whitelist (everything is ignored unless I list it), and every auto-sync commit goes through a secret scan first.
+
+This repository is a cleaned copy of that private one, without my skills and without anything personal.
+
+## 📦 What's inside
 
 | | |
 |---|---|
-| `CLAUDE.md` | Short global preferences: stack, tooling, how I want GitHub handled. |
-| `rules/` | Nine rules. Four general ones are always loaded; five are per-stack (Python, Kotlin, MongoDB, Docker, frontend) and load only when a matching file is touched. |
-| `agents/` | Nine subagents: planner, architect, code and security reviewers, a test-first guide, and a few for builds, cleanup, E2E and docs. |
-| `commands/` | Eleven slash commands, such as `/plan`, `/verify` and `/build-fix`. |
-| `scripts/` | Node hooks that guard commands, scan for secrets, format edited files and keep the config synced. |
-| `settings.json` | Permissions (deny, ask, allow), hook wiring, plugins and model settings. |
+| 📌 `CLAUDE.md` | Short global preferences: stack, tooling, how I want GitHub handled. |
+| 📏 `rules/` | Nine rules. Four general ones are always loaded; five are per-stack (Python, Kotlin, MongoDB, Docker, frontend) and load only when a matching file is touched. |
+| 🤖 `agents/` | Nine subagents: planner, architect, code and security reviewers, a test-first guide, and a few for builds, cleanup, E2E and docs. |
+| ⌨️ `commands/` | Eleven slash commands, such as `/plan`, `/verify` and `/build-fix`. |
+| 🪝 `scripts/` | Node hooks that guard commands, scan for secrets, format edited files and keep the config synced. |
+| ⚙️ `settings.json` | Permissions (deny, ask, allow), hook wiring, plugins and model settings. |
 
-## How the hooks fit together
+## 💡 Ideas worth borrowing
+
+**Keep the always-loaded part small.** `CLAUDE.md` and the four general rules come to about 2k tokens. Anything stack-specific lives in a rule with a `paths:` list in its frontmatter, so the Python rules cost nothing while I'm working on a Kotlin service.
+
+**Write hooks in Node, without a shell.** The same scripts run on Windows and macOS. `bash-guard.js` blocks the usual disasters (force pushes, recursive deletes of root-like paths, `curl | sh`, dropping a database) and scans the staged changes for secrets before every `git commit`. It reports file, line and pattern, never the value. [How it works](docs/bash-guard.md).
+
+**Make auto-sync fail closed.** Because the session-end commit would bypass the guard above, `secret-gate.js` runs the same scanner first. If it finds something, or breaks, the sync is skipped and nothing leaves the machine.
+
+**Order permissions as deny, ask, allow.** Destructive and outward-facing commands ask first, routine safe ones run without a prompt, and secrets are off limits. Pattern matching on command text is not a security boundary, which is why the hook above exists as a second layer.
+
+**Pick the model per job.** Opus for planning and architecture, Haiku for documentation, Sonnet for everything else, using aliases instead of pinned model IDs so the setup does not go stale.
+
+## 🔌 How the hooks fit together
 
 ```mermaid
 flowchart LR
@@ -35,21 +86,18 @@ flowchart LR
     SG -->|secret found| K[Skip the sync]
 ```
 
-## Ideas worth borrowing
+## 🛡️ See it work
 
-**Keep the always-loaded part small.** `CLAUDE.md` and the four general rules come to about 2k tokens. Anything stack-specific lives in a rule with a `paths:` list in its frontmatter, so the Python rules cost nothing while I'm working on a Kotlin service.
+This is the output of `bash-guard.js`, rendered from a real run. Each command is sent to the hook the way Claude Code would send it, and the third one commits a file that contains a fake token.
 
-**Write hooks in Node, without a shell.** The same scripts run on Windows and macOS. `bash-guard.js` blocks the usual disasters (force pushes, recursive deletes of root-like paths, `curl | sh`, dropping a database) and scans the staged changes for secrets before every `git commit`. It reports file, line and pattern, never the value. [How it works](docs/bash-guard.md).
+<p align="center">
+  <img src="docs/assets/guard-demo.svg" alt="Terminal output of bash-guard.js blocking a force push, a recursive delete and a commit that contains a token" width="760">
+</p>
 
-**Make auto-sync fail closed.** A session-end hook commits and pushes the config repo. Because that commit would bypass the guard above, `secret-gate.js` runs the same scanner first. If it finds something, or breaks, the sync is skipped and nothing leaves the machine.
+The message goes back to Claude, so it usually reacts by choosing a safer command or asking me, instead of retrying the same one.
 
-**Order permissions as deny, ask, allow.** Destructive and outward-facing commands ask first, routine safe ones run without a prompt, and secrets are off limits. Rules exist for both the Bash and PowerShell tools. Pattern matching on command text is not a security boundary, which is why the hook above exists as a second layer.
-
-**Pick the model per job.** Opus for planning and architecture, Haiku for documentation, Sonnet for everything else, using aliases instead of pinned model IDs so the setup does not go stale.
-
-## See it work
-
-This is the real output of `bash-guard.js`, not a mock-up. Each command is sent to the hook as Claude Code would send it, and the last case commits a file that contains a fake token:
+<details>
+<summary>Text version of the same run</summary>
 
 ```
 $ git push --force origin main
@@ -73,9 +121,9 @@ $ git status
 [exit 0]
 ```
 
-The message goes back to Claude, so it usually reacts by choosing a safer command or asking me, instead of retrying the same one.
+</details>
 
-## Layout
+## 🗂️ Layout
 
 ```
 .
@@ -88,12 +136,13 @@ The message goes back to Claude, so it usually reacts by choosing a safer comman
 │   ├── hooks/         bash-guard, secret-gate, format-on-edit, notify, sync, push
 │   └── lib/           shared helpers and the secret scanner
 ├── docs/
+│   ├── assets/        banner and terminal image
 │   ├── bash-guard.md  how the command guard and secret scan work
 │   └── reference.md   every rule, agent, command and hook in detail
 └── skills/            list of the skills I use (not included)
 ```
 
-## Using it
+## 🚀 Using it
 
 Read before you copy. The rules and agents are the easiest parts to reuse; start there and cut whatever does not match your stack.
 
@@ -107,11 +156,12 @@ const r = spawnSync('node', ['scripts/hooks/bash-guard.js'], { input: JSON.strin
 console.log(r.status);"
 ```
 
-`sync.sh` and `push.sh` are written for my own setup and will not work for you as they are. They hardcode my private config repository, the branch `master` and the directory `$HOME/.claude`. Change those variables or leave the two hooks out of `settings.json`. `push.sh` commits and pushes everything your `.gitignore` allows, so keep the whitelist and the secret gate in place if you use it.
+> [!WARNING]
+> `sync.sh` and `push.sh` are written for my own setup and will not work for you as they are. They hardcode my private config repository, the branch `master` and the directory `$HOME/.claude`. Change those variables or leave the two hooks out of `settings.json`. `push.sh` commits and pushes everything your `.gitignore` allows, so keep the whitelist and the secret gate in place if you use it.
 
 The full details, including the permission lists, the hook behaviour and how I set up a new machine, are in [`docs/reference.md`](docs/reference.md).
 
-## Credits and license
+## 📄 Credits and license
 
 My own work here is released under the [MIT License](LICENSE). It comes with no warranty, so read any hook that runs commands or pushes to git before you enable it.
 
