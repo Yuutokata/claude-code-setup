@@ -5,6 +5,7 @@
 !.gitignore
 !.gitattributes
 !README.md
+!THIRD_PARTY_NOTICES.md
 !settings.json
 !CLAUDE.md
 !scripts/

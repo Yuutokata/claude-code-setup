@@ -5,7 +5,7 @@ Personal, git-synced Claude Code configuration for Windows and macOS, tuned for 
 
 This is my own setup, published as a reference. Most of it is worth reading for the ideas rather than copying verbatim: the lazy-loading token model, the path-scoped rules, the cross-platform Node hooks (`bash-guard.js` blocks dangerous commands and scans for secrets, `secret-gate.js` guards the auto-sync) and the permission lists. The permissions, plugin list and paths are personal; adapt them before reusing.
 
-It started from the [everything-claude-code](https://github.com/worldflowai/everything-claude-code) (ECC) repository. ECC is treated as raw material: its substance was kept where it is good, and everything that was wrong for this stack (Next.js-only, Supabase, Solana, npm-only commands, plugin-only hooks) was replaced.
+It started from the [everything-claude-code](https://github.com/affaan-m/ECC) (ECC) repository (MIT, see [Credits and licensing](#credits-and-licensing)). ECC is treated as raw material: its substance was kept where it is good, and everything that was wrong for this stack (Next.js-only, Supabase, Solana, npm-only commands, plugin-only hooks) was replaced.
 
 - [Design principles](#design-principles)
 - [Directory layout](#directory-layout)
@@ -181,7 +181,9 @@ Runs only when the project clearly uses the tool, never uses the network (no `np
 - `push.sh`: `git add -A` (bounded by the `.gitignore` whitelist), then `secret-gate.js`, commit `auto-sync from <host> (<date>)`, push; on failure `pull --rebase --autostash` and one retry.
 - `secret-gate.js`: scans the staged diff with the same scanner as `bash-guard.js`. On a finding, or on any internal error, it exits `1`; `push.sh` then unstages everything and skips that sync, and `sync-hook.log` records file, line and pattern (never the value). Unlike `bash-guard.js` it fails closed, because the auto-sync commit would otherwise bypass the scan.
 
-`push.sh` commits without a review step, which is why the whitelist and the secret scan matter. Do not modify or move these two scripts without checking both hook entries in `settings.json`.
+`push.sh` commits without a review step, which is why the whitelist and the secret scan matter.
+
+**Using these scripts yourself:** `sync.sh` and `push.sh` are written for my setup and will not work for you as they are. They hardcode my config repository (`SSH_URL` and `HTTPS_URL` in `sync.sh`, plus the repository named in the comments), the branch `master` (`BRANCH`), and the directory `$HOME/.claude` (`DIR`). Change those variables to your own repository, or do not register the two hooks in `settings.json`. Be careful with `push.sh`: it commits and pushes everything your `.gitignore` allows, so keep the whitelist and the secret gate in place. Do not modify or move these two scripts without checking both hook entries in `settings.json`.
 
 ## Permissions
 
@@ -242,7 +244,7 @@ The old pin `ANTHROPIC_DEFAULT_OPUS_MODEL=claude-opus-4-6` was removed: it held 
 
 The config directory is a git repo (`claude-config`, branch `master`). `.gitignore` is a **whitelist**: everything is ignored (`*`), and only the following is re-included:
 
-`.gitignore`, `.gitattributes`, `README.md`, `settings.json`, `CLAUDE.md`, `scripts/**`, `rules/**`, `agents/**`, `commands/**`, `skills/**` (except `skills/synced/`), `hooks/**`
+`.gitignore`, `.gitattributes`, `README.md`, `THIRD_PARTY_NOTICES.md`, `settings.json`, `CLAUDE.md`, `scripts/**`, `rules/**`, `agents/**`, `commands/**`, `skills/**` (except `skills/synced/`), `hooks/**`
 
 Never synced (stay local): `.credentials.json`, `history.jsonl`, `projects/`, `sessions/`, `plugins/`, `cache/`, `backups/`, `file-history/`, `paste-cache/`, `shell-snapshots/`, `security/`, logs, and `contexts/`.
 
@@ -304,6 +306,6 @@ Checked when the setup was built:
 
 ## Credits and licensing
 
-- Parts of `agents/` and `commands/` are adapted from [everything-claude-code](https://github.com/worldflowai/everything-claude-code); see that repository for its license terms.
-- The skills I use are third-party and not included; see [`skills/README.md`](skills/README.md).
+- Parts of `agents/` and `commands/` are adapted from [everything-claude-code](https://github.com/affaan-m/ECC) by Affaan Mustafa, which is MIT licensed. Its copyright and license notice is kept in [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md).
+- The skills I use are third-party and not included; their upstreams and licenses are listed in [`skills/README.md`](skills/README.md).
 - Plugins named in `settings.json` (`enabledPlugins`) belong to their own authors and are installed from their marketplaces, not stored here.
