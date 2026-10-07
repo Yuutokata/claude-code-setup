@@ -244,7 +244,7 @@ The old pin `ANTHROPIC_DEFAULT_OPUS_MODEL=claude-opus-4-6` was removed: it held 
 
 The config directory is a git repo (`claude-config`, branch `master`). `.gitignore` is a **whitelist**: everything is ignored (`*`), and only the following is re-included:
 
-`.gitignore`, `.gitattributes`, `README.md`, `THIRD_PARTY_NOTICES.md`, `settings.json`, `CLAUDE.md`, `scripts/**`, `rules/**`, `agents/**`, `commands/**`, `skills/**` (except `skills/synced/`), `hooks/**`
+`.gitignore`, `.gitattributes`, `README.md`, `LICENSE`, `THIRD_PARTY_NOTICES.md`, `settings.json`, `CLAUDE.md`, `scripts/**`, `rules/**`, `agents/**`, `commands/**`, `skills/**` (except `skills/synced/`), `hooks/**`
 
 Never synced (stay local): `.credentials.json`, `history.jsonl`, `projects/`, `sessions/`, `plugins/`, `cache/`, `backups/`, `file-history/`, `paste-cache/`, `shell-snapshots/`, `security/`, logs, and `contexts/`.
 
@@ -306,6 +306,7 @@ Checked when the setup was built:
 
 ## Credits and licensing
 
+- My own work in this repository is released under the [MIT License](LICENSE). Use it freely; it comes with no warranty, and hooks that run commands or push to git should be read before you enable them.
 - Parts of `agents/` and `commands/` are adapted from [everything-claude-code](https://github.com/affaan-m/ECC) by Affaan Mustafa, which is MIT licensed. Its copyright and license notice is kept in [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md).
 - The skills I use are third-party and not included; their upstreams and licenses are listed in [`skills/README.md`](skills/README.md).
 - Plugins named in `settings.json` (`enabledPlugins`) belong to their own authors and are installed from their marketplaces, not stored here.
