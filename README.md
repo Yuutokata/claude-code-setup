@@ -3,7 +3,9 @@
 Personal, git-synced Claude Code configuration for Windows and macOS, tuned for a backend-heavy stack:
 **Kotlin (Ktor)**, **Python (FastAPI, Motor, discord.py)**, **MongoDB**, **Docker/Compose on Dokploy**, and a **React + Tailwind + shadcn/ui** frontend.
 
-This is my own setup, published as a reference. Most of it is worth reading for the ideas rather than copying verbatim: the lazy-loading token model, the path-scoped rules, the cross-platform Node hooks (`bash-guard.js` blocks dangerous commands and scans for secrets, `secret-gate.js` guards the auto-sync) and the permission lists. The permissions, plugin list and paths are personal; adapt them before reusing.
+This is my own setup, published as a reference. Most of it is worth reading for the ideas rather than copying verbatim: the lazy-loading token model, the path-scoped rules, the cross-platform Node hooks (`bash-guard.js` blocks dangerous commands and scans for secrets, `secret-gate.js` guards the auto-sync) and the permission lists. The permissions, plugin list and paths are personal; adapt them before reusing. It covers `CLAUDE.md`, rules, subagents, slash commands, hooks, permissions and `settings.json`.
+
+This is an independent personal project and is not affiliated with or endorsed by Anthropic.
 
 It started from the [everything-claude-code](https://github.com/affaan-m/ECC) (ECC) repository (MIT, see [Credits and licensing](#credits-and-licensing)). ECC is treated as raw material: its substance was kept where it is good, and everything that was wrong for this stack (Next.js-only, Supabase, Solana, npm-only commands, plugin-only hooks) was replaced.
 
