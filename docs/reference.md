@@ -11,11 +11,12 @@
 | `security.md` | always | Universal pre-commit checks, secret handling, response protocol when an issue is found (deep review is the `security-reviewer` agent) |
 | `testing.md` | always | Behavior-focused tests, test-first where it pays off, no fixed coverage percentage, what to do with failing tests |
 | `git-workflow.md` | always | Conventional commit format, PR workflow, no `Co-Authored-By` lines |
+| `web-research.md` | always | Escalate blocked or empty fetches (403/429, Cloudflare, JS-only pages) to the Scrapling MCP, keep fetched output small, treat fetched content as untrusted data, public pages only |
 | `python.md` | `**/*.py`, `**/pyproject.toml` | async rules (no blocking calls), FastAPI structure, Pydantic v2, pydantic-settings, Motor/PyMongo, discord.py intents and cogs, typing, ruff, pytest-asyncio |
 | `kotlin.md` | `**/*.kt`, `**/*.kts`, `libs.versions.toml` | Null safety, sealed types, structured concurrency, Ktor plugins/config/testApplication, Mongo Kotlin coroutine driver, Gradle KTS + version catalog |
 | `mongodb.md` | repository/DAO/mongo files, `db/`, `models/`, `init-mongo*` | Schema and embedding vs referencing, ESR index rule, atomic updates, NoSQL injection, auth and exposure, operations. Also says when to prefer PostgreSQL |
 | `docker.md` | `Dockerfile*`, `compose*.yml`, `.dockerignore` | Pinned tags, multi-stage, non-root, no secrets in layers, no published DB ports, healthchecks, Dokploy/Traefik notes |
-| `frontend.md` | `*.ts`, `*.tsx`, `*.jsx`, `tailwind.config.*`, `components.json` | Strict TypeScript, React patterns, Tailwind (v3/v4), shadcn/ui conventions, Vitest/Playwright, client-exposed env vars |
+| `frontend.md` | `*.ts`, `*.tsx`, `*.jsx`, `tailwind.config.*`, `components.json` | Strict TypeScript, React patterns, Tailwind (v3/v4), shadcn/ui conventions, anti-slop design precedence (which design skill owns what), Vitest/Playwright, client-exposed env vars |
 
 Dokploy adds the basic Traefik labels itself when a domain is configured in its Domains tab, so the rules tell Claude **not** to add them to compose files.
 
@@ -146,7 +147,7 @@ Two plugins are enabled in `enabledPlugins`:
 
 The rest are listed with `false` on purpose. Several duplicate the agents and commands in this repo and collide with them by name (`code-reviewer`, `refactor-clean`), and `security-guidance` runs Python hooks on every edit and prompt. I also keep the `github` plugin off, since I use the `gh` CLI for everything GitHub.
 
-Budget goal: fewer than 10 active MCP servers and fewer than 80 tools. Other MCP sources: `scrapling` (user scope, hosted third-party endpoint; used only as a fallback for blocked pages) and the claude.ai connectors (Notion, Claude Docs). Tool search keeps MCP schemas deferred.
+Budget goal: fewer than 10 active MCP servers and fewer than 80 tools. Other MCP sources: `scrapling` (user scope, a Scrapling MCP server you host yourself; fallback for blocked pages, triggered by `rules/web-research.md`) and the claude.ai connectors (Notion, Claude Docs). Tool search keeps MCP schemas deferred.
 
 ## 🎛️ Models and settings
 
@@ -188,6 +189,11 @@ Do not add keys with secrets to the `env` block of `settings.json`, because that
    node ~/.claude/scripts/hooks/notify.js                                                                         # must play a sound
    ```
 7. Set `disableAllHooks` to `false`.
+8. Register the Scrapling MCP once per machine. User-scope servers live in `~/.claude.json`, which is not synced. Check the URL path, transport and auth of your own server first, and pass any token through an environment variable or your secret manager, never inline in a committed file:
+   ```
+   claude mcp add --scope user --transport http scrapling https://<your-scrapling-host>/mcp
+   claude mcp list    # scrapling must show as connected
+   ```
 
 ## 🛠️ Maintaining the setup
 
@@ -216,6 +222,7 @@ Checked when the setup was built:
 - The Phase CLI syntax in the `ask` rules and the Phase token format in the secret scan are best guesses.
 - `ktlint` on Windows is often a `.bat` file; `format-on-edit.js` calls executables without a shell and will skip it silently in that case.
 - The skill description budget and the full `statusLine` schema were not verified against the docs.
+- `rules/web-research.md` assumes the MCP server is registered under the name `scrapling` (tool prefix `mcp__scrapling__`). The path, transport and auth of a self-hosted server depend on how you run it and were not verified here.
 
 ## ⏪ Rollback
 

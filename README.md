@@ -53,7 +53,7 @@ This repository is a cleaned copy of that private one, without my skills and wit
 | | |
 |---|---|
 | 📌 `CLAUDE.md` | Short global preferences: stack, tooling, how I want GitHub handled. |
-| 📏 `rules/` | Nine rules. Four general ones are always loaded; five are per-stack (Python, Kotlin, MongoDB, Docker, frontend) and load only when a matching file is touched. |
+| 📏 `rules/` | Ten rules. Five general ones (including web-research escalation) are always loaded; five are per-stack (Python, Kotlin, MongoDB, Docker, frontend) and load only when a matching file is touched. |
 | 🤖 `agents/` | Nine subagents: planner, architect, code and security reviewers, a test-first guide, and a few for builds, cleanup, E2E and docs. |
 | ⌨️ `commands/` | Eleven slash commands, such as `/plan`, `/verify` and `/build-fix`. |
 | 🪝 `scripts/` | Node hooks that guard commands, scan for secrets, format edited files and keep the config synced. |
@@ -61,7 +61,7 @@ This repository is a cleaned copy of that private one, without my skills and wit
 
 ## 💡 Ideas worth borrowing
 
-**Keep the always-loaded part small.** `CLAUDE.md` and the four general rules come to about 2k tokens. Anything stack-specific lives in a rule with a `paths:` list in its frontmatter, so the Python rules cost nothing while I'm working on a Kotlin service.
+**Keep the always-loaded part small.** `CLAUDE.md` and the five general rules come to about 2.3k tokens. Anything stack-specific lives in a rule with a `paths:` list in its frontmatter, so the Python rules cost nothing while I'm working on a Kotlin service.
 
 **Write hooks in Node, without a shell.** The same scripts run on Windows and macOS. `bash-guard.js` blocks the usual disasters (force pushes, recursive deletes of root-like paths, `curl | sh`, dropping a database) and scans the staged changes for secrets before every `git commit`. It reports file, line and pattern, never the value. [How it works](docs/bash-guard.md).
 
