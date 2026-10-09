@@ -13,6 +13,7 @@ This repo does not ship skill files. The skills I run day to day are third-party
 | `impeccable` | [pbakaus/impeccable](https://github.com/pbakaus/impeccable) | Apache-2.0 |
 | `vite` | [vitejs/vite](https://github.com/vitejs/vite), scripts from [antfu/skills](https://github.com/antfu/skills) | MIT |
 | `design-md` | [google-labs-code/stitch-skills](https://github.com/google-labs-code/stitch-skills) | Apache-2.0 |
+| `apple-design`, `mobile-native`, `pick-ui-library` | [emilkowalski/skills](https://github.com/emilkowalski/skills) | MIT |
 | `find-skills` | [vercel-labs/skills](https://github.com/vercel-labs/skills) | MIT |
 | `responsive-design` | [wshobson/agents](https://github.com/wshobson/agents) | MIT |
 | `resolving-merge-conflicts`, `thermo-nuclear-code-quality-review`, `web-perf` | not recorded | unknown |

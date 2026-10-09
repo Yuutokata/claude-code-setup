@@ -38,6 +38,13 @@ Detect the project's package manager from the lockfile (`pnpm-lock.yaml`, `packa
 - Respect `components.json` (aliases, style, base color, `cssVariables`). Compose from Radix-based primitives; keep `forwardRef`/`asChild` patterns intact.
 - Reuse existing components before adding a new one; keep variants in `cva` definitions.
 
+## Design quality (anti-slop)
+
+- `impeccable` owns look and feel: layout, type, color, hierarchy, and the ban list (`craft-floor.md`). The brief and a project's `DESIGN.md` win over any skill. Run `npx impeccable detect <path>` on changed UI files before finishing; it is deterministic and catches AI tells (side-tab borders, gradient text, glow shadows, bounce easing, nested cards, Inter-by-default, low contrast).
+- `apple-design` only for gesture-driven or physical motion (drawers, sheets, drag, springs, velocity handoff) and translucent chrome. It never overrides `impeccable`: use blur and glass only as a functional layer (sticky nav over scrolling content), not as decoration.
+- `mobile-native` when the UI runs on phones or as a PWA (`dvh`/`svh`, tap highlight, input zoom, safe areas, hover gating). `pick-ui-library` (manual) before hand-rolling toasts, command menus, number animation or virtualization; check `package.json` first and keep libraries the project already uses.
+- Use real hardware or a real browser screenshot for visual claims; never declare a design "polished" from code alone.
+
 ## Tooling and Tests
 
 - Build with Vite when the project uses it; run `tsc --noEmit`, ESLint and the project's formatter (Prettier/Biome) before finishing.
